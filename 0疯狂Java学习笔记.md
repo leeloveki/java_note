@@ -137,7 +137,7 @@ void parallelSort(type[] a)
 
 > 面向对象三大特征: 封装 继承 多态
 
-在Java中提供了三个访问控制修饰符来实现封装
+Java提供了三种访问控制修饰符来实现封装
 
 private protected public
 
@@ -808,14 +808,26 @@ int a=1;
 # instanceof运算符
 
 ```java
-if(fatherSon instanceof Son){
-    Son son=(Son)fatherSon;
-}
+Father f1=new Father();
+Son s1=(Son)f1;
+//上述代码会抛出java.lang.ClassCastException错误
+Son s2=new Son();
+Father fs=(Father)s2;
+//正确的多态实现
 ```
 
-> 可以用instanceof运算符来判断是否可以成功转换, 避免抛出ClassCastException错误
+```java
+Father f1 = new Father();
+if (f1 instanceof Son) {
+    Son s1 = (Son) f1;
+}
+//可以用instanceof运算符来判断是否可以成功转换, 避免抛出ClassCastException错误
+//上述if判断将为false, 不会执行代码块里面的内容
+```
 
 instanceof运算符: 当前面的操作数是后面操作数的同一个类 子类 实现类的实例则返回true, 否则返回false
+
+要求前面的操作数为实例/对象, 后面的操作数为类
 
 instanceof运算符一般与(type)强制转换符配合使用, 先用instanceof判断是否可以进行强制转换, 再用强制类型转换符进行转换, 保证代码的健壮性
 
@@ -1047,3 +1059,405 @@ enum关键字用于创建枚举类
 > 包装类作为引用变量可以直接与基本类型变量进行比较(发生了自动拆箱)
 >
 > 两个包装类对象引用变量进行比较时, 只有两个引用变量是指向同一个对象时才会返回true
+
+JDK1.5后的自动装箱有缓存机制, -128~127之间的整数装箱成Integer实例后将存储到一个cache数组中, 第二次使用时将直接从cache数组中取出不再重复创建
+
+所以-128~127自动装箱创建的实例进行相等比较将返回true
+
+> byte范围-128~127
+
+**为什么byte的范围是-128~127**
+
+0000 0000
+
+byte
+
+00000000
+
+符号位占一位 存储数值的位有7位
+
+2^(8-1)-1
+
+128-1=127
+
+> Java使用二进制补码来存储负数
+
+![image-20220507111215881](0疯狂Java学习笔记.assets/image-20220507111215881.png)
+
+正数和负数在计算机底层均以补码的形式存储
+
+2*(9-1)-1=255
+
+255=128+127
+
+> -128以8位2进制表示: 1000 0000
+>
+> 1000 0000补码
+>
+> 0111 1111 +1
+>
+> 1000 0000
+>
+> 负数补码计算方式
+>
+> 正数的补码是其本身
+
+Java7中提供了包装类对象的比较方法
+
+```java
+Integer.compare(Integer val1, Integer vla2)
+
+Integer.compare(2,1);
+//输出1
+Integer.compare(1,2);
+//输出-1
+Integer.compare(1,1);
+//输出0
+```
+
+Java7中还为Character包装类增加了大量工具方法, 用于对字符进行判断
+
+Java8为整数包装类提供了无符号运算方法
+
+如:
+
+static String toUnsignedString(int/long i):
+
+将int/long整数转换为无符号整数对应的字符串
+
+>这些方法好像有字符串拼接, 强制转换等替代方法可以实现相同的功能
+
+> 注意将负数转换成无符号整数时, 不会是直接取其绝对值, 而是将其补码的符号位1作为数值位, 作为原码计算出对应的无符号整数 
+
+如8位byte存储的-3
+
+原码: 1000 0011
+
+补码: 1111 1100+1
+
+1111 1101
+
+其无符号整数为253
+
+# Object类
+
+Object类是所有类的父类, 所以Object类中提供的方法会被所有类继承
+
+Object类中提供了toString() 实例方法, 其返回值为"类名+@+hashCode"
+
+在自定义类中可以重写toString()方法来实现自定义功能
+
+> 数组类重写了toString()方法, 可以将数组元素作为字符串输出
+
+**当==运算符的操作数包含引用变量时, 必须是两个有父子关系的对象才能进行比较, 或者是相同类的对象**
+
+> 这里的父子关系不可以是间接父子关系, 必须是直接父子关系
+
+```java
+String s1="her";
+//直接量 直接使用常量池管理, 将常量池中的对象给s1引用变量
+String s2=new String("he");
+//先使用常量池管理对象, 再调用String类构造器创建新的String对象给s2引用变量
+//new String("he")会产生两个对象
+```
+
+上述代码使用了两种方式赋值给字符串变量
+
+> 常量池 (constant pool): 用于管理编译时已经创建并保存在类文件(.class)中的数据, 通常包括 常量(类 方法 接口中) 字符串常量
+
+用new String("")创建的字符串对象将保存在堆内存(运行时内存区), 但是常量池中的对象将在编译时就确定并保存, 不需要在运行时候再创建
+
+```java
+System.out.println(1==1.0);
+//输出ture
+System.out.println(65=='A');
+//输出true
+```
+
+Object类提供了equals()实例方法用于将两个对象进行比较 注意equals()方法的判断逻辑和要求与使用==运算符进行两个对象的比较时是完全相同的
+
+> 实际上Object类提供的equals()仅仅对两个引用变量指向的对象内存地址进行比较, 地址相同就返回true
+
+> String类已经重写了equals()方法, 只要两个字符串的内容是相同的, 就返回true
+
+> instanceof运算符与equals方法不同, instanceof运算符的操作数为前面实例 后面类
+>
+> equals为两个对象的比较
+
+equals方法重写一般要遵循下面的原则:
+
+自反性: x.equals(x)一定返回true
+
+对称性: 如果x.equals(y)为true, 则y.equals(x)一定为true
+
+传递性: 对于x, y, z, 如果x.equals(y)为true, x.equals(z)为true, 则y.equals(z)为true
+
+一致性:对于x ,y, 如果用于对比的信息没有改变, 那么x.equals(y)的结果不会发生改变
+
+如果x不为null, x.equals(null)一定为false
+
+# 类成员
+
+用static修饰的成员叫做类成员
+
+Java中类有5种成员: 成员变量  方法 构造器 初始化块 内部类
+
+内部类包括接口 枚举 
+
+用static修饰的类成员属于整个类
+
+非static成员属于单个实例/对象, 为实例/对象成员
+
+**类成员变量存储在元空间中**
+
+**实例成员变量存储在堆内存(运行时内存)中**
+
+> 在大部分的语言中都不允许通过对象来访问类变量, Java虽然可以通过对象来访问类变量, 但是不建议使用这个特性
+
+> 规范的编程应该是只通过对象来访问实例成员
+>
+> 访问类成员只通过类来访问
+
+> 在Java中null对象可以正常访问其所属的类成员
+>
+> 但是试图访问null对象的实例成员时, 将引发NullPointerException错误, 表示null对象实际上是不存在的
+
+# 单例类(Singleton)
+
+一个始终只能创建一个实例的类就是单例类
+
+单例类通常的设计:
+
+1. 将类的构造器都用private修饰起来, 防止被其他类调用
+2. 提供一个用public static修饰的类方法来创建对象
+3. 使用一个用private static修饰的成员变量来缓存上述方法创建的对象, 保证只有一个实例能够被创建
+
+```java
+class Singleton{
+    private static Singleton instance;
+    //隐藏构造器
+    private Singleton(){}
+    提供类方法创建并缓存对象
+    public static Singleton getInstance(){
+        if(instance==null){
+            instance=new Singleton();
+        }
+        return instance;
+    }
+    
+}
+```
+
+上述代码实现了一个单例类
+
+# final
+
+final关键字可用于修饰类 变量 方法
+
+当变量用final修饰时, 该变量一旦被赋予了初始值, 则不能再被重新赋值
+
+成员变量被final修饰时, 该变量不会被系统自动初始化赋值, 必须在特定位置进行显式指定初始值
+
+```java
+class TestClass{
+    final static int num1=1;
+    //类变量可以在声明时赋值
+    final static int num2;
+    static{
+        num2=1;
+    }
+    //类变量可以在静态初始化块赋值
+    final int num5=1;
+    //实例变量可以在声明时赋值
+    final int num3;
+    {
+        num3=1;
+    }
+    //实例变量可以在非静态初始化块赋值
+    final int num4;
+    TestClass(){
+        num4=1;
+    }
+    //实例变量还可以在构造器中进行初始化赋值
+}
+```
+
+上述代码展示了final类变量的两个赋值地点, final实例变量的三个赋值地点
+
+```java
+class TestClass{
+    final int num5;
+    {
+//    System.out.println(num5);
+        test();
+        num5=6;
+    }
+
+    private void test(){
+        System.out.println(num5);
+    }
+    public static void main(String[] args){
+        new TestClass();
+        //将输出0
+    }
+}
+```
+
+上述代码显示了final成员变量可以在初始化被方法访问, 并且输出0, 这是Java的设计缺陷
+
+**final局部变量**
+
+final局部变量只能进行一次赋值
+
+final局部变量作为形参时, 会在值传递时被系统赋值, 不能再次赋值
+
+**final基本类型变量和final引用变量的区别**
+
+final基本类型变量只能进行一次赋值
+
+final修饰引用变量时, 该引用变量所指向的对象地址无法再次改变, 也就是说无法重新指向其他的对象. 
+
+但是注意引用变量指向的对象本身是不受final修饰符影响, 可以正常修改
+
+当一个变量满足三个条件时, 其相当于一个直接量, 成为宏变量
+
+1. 被final修饰
+2. 声明时指定了初始值
+3. 初始值在编译时就被确定
+
+宏变量在代码中出现的地方会被编译器直接替换成对应的值
+
+```java
+class Test37{
+    public static void main(String[] args) {
+        final String book1="1"+1;
+        final String book2="1"+String.valueOf(1);
+        final String book3="11";
+        String book5="1"+1;
+        System.out.println(book1==book2);
+        //输出false, 因为宏变量是在常量池中
+        System.out.println(book1==book3);
+        //输出ture, 因为两个都是宏变量
+        System.out.println(book1==book5);
+        //也是true, 代表不需要final修饰也是可以在常量池中
+    }
+}
+```
+
+**final方法**
+
+当父类中的方法用final修饰时, 子类不能重写该方法
+
+与private的隐藏不同, final修饰的方法如果被子类重写将造成编译错误
+
+但是如果方法同时被final 和 private修饰时, 方法对于子类来说将是隐藏状态, 不再是方法重写而是定义了新的方法, 可以正常运行
+
+final不会影响方法重载
+
+**final类**
+
+final修饰的类将不可被继承
+
+# 不可变类(immutable)
+
+Java的八种基本数据类型对应的包装类和java.lang.String类都属于不可变类
+
+不可变类的实例创建后不能改变其实例变量
+
+自定义不可变类应该遵循下列规则:
+
+1. 成员变量用private 和 final修饰
+
+2. 提供带参构造器来根据参数初始化成员变量
+
+3. 提供getter方法, 不提供setter方法, 因为final成员变量不能二次修改
+
+4. 必要时需要重写hashCode()和equals()方法
+
+   > java.lang.String类已经重写了hashCode()和equals()方法
+
+JavaBean是可变类的代表, 可变类的实例变量都是可变的
+
+**可以使用数组来实现缓存实例的不可变类**
+
+![image-20220509142526572](0疯狂Java学习笔记.assets/image-20220509142526572.png)
+
+使用数组来实现实例的缓存池, 当缓存池满时, 采用先进先出的队列规则来移出旧对象
+
+缓存实例的不可变类通常会提供valueOf()方法来获取缓存池中的实例
+
+> java.lang.Integer类也提供valueOf()方法来从缓存池中获取实例
+
+# 抽象类
+
+为什么需要设计抽象类：因为多态实现的父类类型 引用变量虽然是指向子类对象， 但是无法通过该引用变量调用父类中没有， 但是子类中有的方法。 抽象类可以设计出无方法体， 仅有方法名的类模板可以解决该方法
+
+抽象类提供了子类的通用方法，并将方法执行体留给子类实现 
+
+抽象类是模板模式的一种实现
+
+抽象方法和抽象类必须使用abstract修饰
+
+一个类中含有抽象方法, 则该类必须为抽象类
+
+但是用abstract修饰的抽象类可以不含抽象方法
+
+**抽象类不能实例化，只能被子类继承**
+
+抽象方法和抽象类的规则:
+
+1. 抽象方法和抽象类必须使用abstract修饰, 抽象方法不能有方法体(具体代码块)
+
+2. 抽象类不能被实例化, 意味着它的构造器无法被new 关键字调用来创建实例
+
+3. 抽象类可以包含普通类中的五种成分: 成员变量 方法 构造器 初始化块 内部类(接口, 枚举)
+
+   > 抽象类的构造器不能创建实例, 但是可以被子类调用(在子类创建实例时, 会按照继承树的顺序调用父类和间接父类中的构造器和初始化块)
+
+4. **含有抽象方法的类必须被abstract修饰**
+
+```java
+abstract class Shape{
+    public abstract getType();
+}
+```
+
+> abstract和static不能修饰同一个方法， 但是可以修饰同一个内部类
+>
+> abstract和private也不能修饰同一个方法
+
+# 接口（interface)
+
+接口是一种特殊的抽象类
+
+Java9允许在接口中自定义默认方法、类方法、私有方法
+
+接口不提供任何实现的方法，只定义行为规范（一组公用的方法）
+
+体现了规范与实现分离的设计规则
+
+采用接口可以让程序有更好的扩展性和可维护性
+
+接口使用interface代替class声明
+
+**接口是一种特殊的抽象类， 所以接口本质是一种特殊的类**
+
+1. 接口可以用的修饰符跟外部类一样，只能用public或者省略为默认权限
+2. 接口的命名与类名遵循相同的规则
+3. **接口可以有多个直接父接口， 但是接口与类之间不能有继承关系**
+
+接口里面只有三种成员： 成员变量（只有静态常量final static) 方法（抽象实例方法、类方法、默认方法、私有方法） 内部类（内部接口、枚举）
+
+不能含有构造器、初始化块
+
+> 注意普通的类可以包含内部接口
+
+接口的成员都只能用public权限， 可以省略public修饰符（除了私有方法）
+
+> Java9中增加了私有方法的支持， 使用private修饰符可以声明私有方法，private static声明私有类方法 
+
+> 私有方法通常作为工具方法被接口中的其他方法调用
+
+接口中的变量只有公开静态常量, 所以可以省略final public static修饰符
+
+接口中的普通方法不能有方法体实现， 但是类方法 默认方法 私有方法都必须有方法体实现
