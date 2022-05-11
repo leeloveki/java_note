@@ -1326,18 +1326,19 @@ final修饰引用变量时, 该引用变量所指向的对象地址无法再次�
 宏变量在代码中出现的地方会被编译器直接替换成对应的值
 
 ```java
-class Test37{
+class Outer {
+    class Inner {
+    }
+    static class Inner2 {
+    }
+}
+
+class Test43 {
     public static void main(String[] args) {
-        final String book1="1"+1;
-        final String book2="1"+String.valueOf(1);
-        final String book3="11";
-        String book5="1"+1;
-        System.out.println(book1==book2);
-        //输出false, 因为宏变量是在常量池中
-        System.out.println(book1==book3);
-        //输出ture, 因为两个都是宏变量
-        System.out.println(book1==book5);
-        //也是true, 代表不需要final修饰也是可以在常量池中
+        Outer out = new Outer();
+        Outer.Inner inner= new Outer().new Inner() ;
+        Outer.Inner inner0= out.new Inner() ;
+        Outer.Inner2 inner2 =new Outer.Inner2();
     }
 }
 ```
@@ -1590,3 +1591,36 @@ static内部类可以包含非static成员, 但是static成员不能访问非sta
 > 外部类不能被static修饰
 
 > 接口也可以定义内部接口, 但是一般开发中不需要用到内部接口
+
+```java
+class Outer {
+    class Inner {
+    }
+    static class Inner2 {
+    }
+}
+
+class Test43 {
+    public static void main(String[] args) {
+        Outer out = new Outer();
+        Outer.Inner inner= new Outer().new Inner() ;
+        //创建外部类对象来创建非static内部类对象
+        Outer.Inner inner0= out.new Inner() ;
+        //调用已存在外部类对象来创建非static内部类对象
+        Outer.Inner2 inner2 =new Outer.Inner2();
+        //直接通过外部类来创建static内部类对象
+    }
+}
+```
+
+**内部类的调用必须在前面加上其外部类的前缀**
+
+**创建内部类对象前必须先创建外部类对象**
+
+**非static内部类的构造器必须由外部类对象来调用**
+
+> 意味着
+>
+> 1. 非static内部类创建对象需要先创建/存在有外部类对象
+> 2. 非static内部类被继承的子类创建对象时也需要由外部类对象来调用
+
