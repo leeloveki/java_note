@@ -1742,7 +1742,7 @@ Lambda是Java8的一个重大更新
 
 Lambda表达式相当于创建了一个匿名方法
 
-Lambda可以用来替代单方法接口(一个接口中只有一个方法)
+Lambda只能用来实现单方法接口的实例化(一个接口中只有一个方法)
 
 lambda表达式的有点:
 
@@ -1767,7 +1767,24 @@ Lambda表达式有三部分:
 
    > 当lambda表达式的代码块只有一条语句时, 会将该语句返回值自动return
 
+```java
+interface Hello{
+    void hello(int num);
+//    void test();
+}
+class Test15{
+    public static void main(String[] args) {
+        Hello h=(num)->{
+            System.out.println("hello");
+        };
+    }
+    //省略写法, 也是语法正确的
+    Hello h=num -> System.out.println("hello");
+    //注意当没有形参时, 不可以省略圆括号
+}
+```
 
+上述代码用lambda实现了一个接口的实例化
 
 # 枚举类
 
@@ -1777,4 +1794,185 @@ JDK1.5增加了对枚举类的支持
 
 1.5之前可以手动设计一个类实现枚举
 
-1. 
+可以按照一下规则来设计枚举类
+
+1. 用private修饰构造器, 使其无法用new关键字调用创建实例
+1. 将该类的所有实例都用public static final修饰的类常量来保存
+1. 提供static方法来给外部获取匹配实例
+
+**引用类型的数组初始化时将每个数组元素赋值null**
+
+使用前需要遍历一遍数组, 将每个引用遍历都new 一个对象
+
+# StringBuilder
+
+StringBuilder类是具有缓冲能力的字符串处理类
+
+特点: 长度和内容都是可变的
+
+常用方法:
+
+append
+
+insert
+
+setCharAt
+
+replace
+
+deleteChatAt
+
+delete
+
+capacity
+
+length
+
+reverse
+
+indexOf
+
+lastIndexOf
+
+```java
+		StringBuilder sb=new StringBuilder("a1234a");
+        //创建一个内容为a1234a的StringBuilder对象
+        System.out.println(sb);
+        sb.append("a");
+        //将另一个字符串,或者基本数据类型加入到原字符串的末尾
+        System.out.println(sb);
+        sb.insert(1,'b');
+        //在index位置插入字符串或基本数据类型数值, 原来位置的字符向后移
+        System.out.println(sb);
+        sb.setCharAt(2,'c');
+        //将index所在位置的字符替换为字符串或基本数据类型
+        System.out.println(sb);
+        sb.replace(1,3,"d");
+        //先删除startIndex到EndIndex-1的内容
+        //然后插入子字符串
+        System.out.println(sb);
+        sb.deleteCharAt(1);
+        //删除字符串中index对应字符
+        System.out.println(sb);
+        sb.delete(1,3);
+        //删除startIndex到EndIndex-1的内容
+        System.out.println(sb);
+        System.out.println(sb.capacity());
+        //输出sb底层char[]数组的长度
+        System.out.println(sb.length());
+        //输出内容字符长度
+        System.out.println(sb.reverse());
+        //将字符串反转
+        System.out.println(sb.indexOf("a"));
+        //输出第一个匹配到的字符串的第一个字符所在index
+        sb.append('a');
+        System.out.println(sb);
+        System.out.println(sb.lastIndexOf("aa"));
+        //输出第二个匹配到的字符串的第一个字符所在index
+```
+
+**注意StringBuffer中也有跟StringBuilder相同功能的同名方法**
+
+**StringBuffer和StringBuilder的方法会操作对象本身, 但是String中的方法不会操作对象, 而是返回一个新的String类对象**
+
+**StringBuffer和StringBuilder两个属性length和capacity, 都是可变的, capacity代表对象的底层存储数组的长度(容量) 通常比length大, 而且该属性由系统自动操作, 程序无须关心**
+
+可以用length()和setLength(int len)方法来获取长度或修改长度
+
+String对象没有capacity属性, 只有length属性
+
+**Java中有三种类来封装字符串: String StringBuffer StringBuilder**
+
+区别: String类是固定的, 一旦创建不可再次改变
+
+StringBuffer和StringBuilder类类似, 两个类都是可变的, 并且两者的方法和构造器基本相同, 但是只有StringBuffer是线程安全
+
+StringBuffer类可以通过toString()方法转换成对应的String对象
+
+StringBuilder的性能较高
+
+创建一个内容可变的字符串对象时, 应该优先考虑使用StringBuilder
+
+>  Java中有CharSequence接口, 该接口被字符串的三种类都实现了, 可以视为Java中的字符串通用接口
+
+Java8中, 三个类都是使用char[]数组来存储字符串, 因此字符串中的每个字符占两个字节大小
+
+Java9改进了三个类, 使用byte[]数组和encoding-flag字段来存储字符, 使得每个字符只占一个字节, 节省了内存空间
+
+但是改进不会影响三个类的功能方法的使用
+
+# String类
+
+String类有大量构造器来创建对象
+
+常用的构造器有:
+
+String() 返回一个0长度的对象
+
+String(String original) 用字符串直接量创建对象
+
+String(StringBuffer buffer) 将StringBuffer类对象转换成String对象
+
+String(StringBuilder bulder) 将StringBuilder类对象转换成String对象
+
+String类的20种方法的使用示例: 
+
+```java
+String str="11123";
+        String str3="abc";
+        String str4="ABC";
+//        boolean flag = str3.isEmpty();
+//        str.indexOf("23")
+        System.out.println(str.indexOf("213"));
+        //返回第一个匹配到的字符串的第一个字符所在index
+        //不匹配返回-1
+        System.out.println(str.charAt(1));
+        //返回index对应的字符
+        String str2=str.concat("456");
+        //进行字符串拼接,等同于+操作
+        System.out.println(str2.contains("56"));
+        //判断是否包含另一个字符串
+        System.out.println(str3.equals(str4));
+        //判断字符串内容是否相等
+        System.out.println(str3.equalsIgnoreCase(str4));
+        //判断字符串内容是否相等, 忽略字母大小写的区别
+        System.out.println(str3.startsWith("a"));
+        //判断字符串的开头是否是另一个字符串
+        //String str3="abc";
+        System.out.println(str3.endsWith("a"));
+        //判断字符串的末尾是否是另一个字符串
+        System.out.println(Arrays.toString(str3.getBytes(StandardCharsets.UTF_8)));
+        //以数组形式返回字符串的每个字符在编码集中对应的数值
+        System.out.println(Arrays.toString(str3.toCharArray()));
+        //返回字符串中的字符对应的char数组
+        System.out.println(str3.isEmpty());
+        //判断字符串的内容是否为空
+        String str5="  aab c   ";
+        System.out.println(str5.trim());
+        //去除字符串开头和结尾的空格并返回
+        //注意不会修改字符串本身, 返回的是另一个新字符串
+        System.out.println(Arrays.toString(str5.split(" ")));
+        //以参数的字符串为分隔符, 将字符串分割并存储为char类型数组返回
+        System.out.println(str5.equals(str5.substring(0)));
+        //返回从index开始到结尾的子字符串
+        System.out.println(str5.replace("a",""));
+        //将字符串中所有的匹配字符串替换为另一个字符串
+        System.out.println(str5.lastIndexOf('a'));
+        //返回字符串中最后一个匹配的字符所在的index
+        str5.toUpperCase(Locale.ROOT);
+        //将字符串中的所有小写字母转换为大写
+        str5.toLowerCase(Locale.ROOT);
+        //将字符串中所有的大写字母转换成小写
+        System.out.println(String.valueOf(5));
+        //将基本数据类型转换成字符串, 可以用空白字符串+基本数据类型代替
+        //注意该方法为类方法, 不是实例方法
+        System.out.println(str5.intern());
+        //从常量池中取出对应的字符串对象返回, 如果不存在则在常量池中创建
+```
+
+```java
+String a="1";
+String b=a+a+a+a+a+a;
+//上述代码将中途产生4个临时对象, 使用StringBuilder或StringBuffer类可以避免产生临时对象
+```
+
