@@ -440,6 +440,19 @@ random()
 
 abs(int i)	pow(int a,int b)	max(int a,int b)	min(int a,int b)	round(double d) 
 
+```java
+		System.out.println(Math.abs(-1));
+        //绝对值
+        System.out.println(Math.pow(3.0, 2.0));
+        //求幂
+        System.out.println(Math.max(1, 2));
+        //返回最大值
+        System.out.println(Math.min(1, 2));
+        //最小值
+        System.out.println(Math.round(15.5));
+        //将double小数四舍五入返回一个int数值
+```
+
 
 
 # Random类
@@ -465,7 +478,61 @@ Java7中提供了Random的增强类 ThreadLocalRandom
 
 # UUID类
 
+UUID: Universally Unique Indentifier (通用唯一标识码)
 
+**UUID用于生成36位的随机值, UUID值的重复概率非常低, 因此可以视为具有唯一性**
+
+可以用于高并发的系统中, 作为数据的唯一索引
+
+> UUID是根据当前系统时间, 网卡MAC地址再加上随机数(盐) 作为种子来产生UUID值, 可以视为具有很高的随机性
 
 # BigDecimal
+
+在Java中进行浮点数(float double)运算时会发生精度丢失,计算的结果不准确
+
+> 原因在于浮点数是将十进制小数转换为二进制存储, 转换过程中会发生数据丢失(精度丢失)
+
+**数据丢失的本质是由于部分十进制小数没有对应的二进制浮点数, 只能存储成无限接近的近似值(类似于分数中无限循环小数的概念)**
+
+为了在十进制小数的存储和使用时避免精度丢失, Java提供了BigDecimal来进行十进制小数的存储和运算
+
+> 在BigDecimal中, 十进制浮点数并非直接转换成二进制浮点数进行存储, 所以可以避免产生数据丢失
+
+BigDeciaml提供了大量构造器来将浮点数存储为对象
+
+BigDecimal(double val)
+
+> 不推荐使用该构造器, 推荐使用BigDecimal.valueOf(double val)类方法来创建对象
+
+BigDecimal(type val)
+
+> 将8种基本数据类型(除了Boolean) 转换成对应的BigDeciaml对象 
+
+**推荐使用BigDeciaml(String str)构造器来将小数对应的字符串转换**
+
+常用方法:
+
+add()
+
+subtract()
+
+mutiply()
+
+divide()
+
+pow()
+
+```java
+		System.out.println(bd.add(bd2));
+        //将BigDecimal对象与另一个对象相加, 不会修改原对象, 直接返回结果对象
+        //调用bd对象的toString方法输出
+        System.out.println(bd.subtract(bd2));
+        //将两个对象相减并返回结果
+        System.out.println(bd.multiply(bd2));
+        //将两个对象相乘并返回结果
+        System.out.println(bd.divide(bd2));
+        //相除并返回结果
+        System.out.println(bd.pow(2));
+        //计算幂, 注意必须传入参数必须为int整数
+```
 
