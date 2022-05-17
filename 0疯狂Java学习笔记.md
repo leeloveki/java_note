@@ -427,6 +427,10 @@ Java中变量分为局部变量和成员变量
 
 良好的软件开发规范应该是尽可能的缩小一个变量的作用域, 不占用多余的内存时间
 
+**引用类型的数组初始化时将每个数组元素赋值null**
+
+使用前需要遍历一遍数组, 将每个引用遍历都new 一个对象
+
 # 隐藏和封装
 
 Java中的类和实例的成员变量可以进行封装来向外界隐藏对象的内部信息
@@ -1823,34 +1827,32 @@ Java8在java.util.function包中提供了大量预定义的函数接口
 
 lambda表达式有更加简洁的写法
 
-| 种类       | 示例           | 对应的表达式                | 说明 |
-| ---------- | -------------- | --------------------------- | ---- |
-| 类方法     | 类名::类方法   | () -> class.staticMethod()  |      |
-| 实例方法   | 对象::实例方法 | () -> 对象.noStaticMethod() |      |
-|            | 类名::实例方法 | () -> 对象.noStaticMethod() |      |
-| 引用构造器 | 类名::new      | () -> new Class()           |      |
+| 种类       | 示例           | 对应的表达式                        | 说明 |
+| ---------- | -------------- | ----------------------------------- | ---- |
+| 类方法     | 类名::类方法   | () -> class.staticMethod()          |      |
+| 实例方法   | 对象::实例方法 | () -> 对象.noStaticMethod()         |      |
+|            | 类名::实例方法 | (b,....) -> a.noStaticMethod(b,...) |      |
+| 引用构造器 | 类名::new      | () -> new Class()                   |      |
 
 ```java
-
 interface Hello {
     void hello(int a, int b);
 
-    static void hello() {
-    }
+    static void hello() {}
+}
+
+interface Hello2{
+    void helloHo(Ho a,int b,int c);
 }
 
 class Ho {
-    public Ho(int i, int i1) {
-    }
+    public Ho(int i, int i1) {}
 
-    Ho() {
-    }
+    Ho() {}
 
-    void hello(int a, int b) {
-    }
+    void hello(int a, int b) {}
 
-    static void staticHello(int a, int b) {
-    }
+    static void staticHello(int a, int b) {}
 }
 
 class Test16 {
@@ -1861,13 +1863,28 @@ class Test16 {
         //类方法
         Hello h3 = (a, b) -> ho.hello(a, b);
         Hello h7 = ho::hello;
-        //实例方法
+        //特定对象的实例方法
+        Hello2 h8=(a,b,c)->a.hello(b,c);
+        Hello2 h9=Ho::hello;
+        //某类对象的实例方法
         Hello h4 = (a, b) -> new Ho(a, b);
         Hello h5 = Ho::new;
         //引用构造器
     }
 }
 ```
+
+lambda和匿名内部类有相同之处:
+
+1. 两者都可以直接访问接口中默认被final修饰的变量
+2. 两者对应的实例都可以调用接口中继承的默认方法
+
+两者的区别:
+
+1. 匿名内部类可以为任何接口 抽象类 普通类创建实例, lambda表达式只能创建函数接口的实例
+2. 匿名内部类的代码块可以调用接口的默认方法, lambda表达式的代码块不能调用默认方法
+
+在Arrays类中的有些类方法需要Comparator, XxxOperator, XxxFunction等函数接口的实例, 可以用lambda表达式来实现, 使代码更简洁
 
 # 枚举类
 
@@ -1883,9 +1900,21 @@ JDK1.5增加了对枚举类的支持
 1. 将该类的所有实例都用public static final修饰的类常量来保存
 1. 提供static方法来给外部获取匹配实例
 
-**引用类型的数组初始化时将每个数组元素赋值null**
+由于自定义枚举类的代码量较大, Java5中新增了enum关键字来声明枚举类, 提高开发效率
 
-使用前需要遍历一遍数组, 将每个引用遍历都new 一个对象
+> enum的地位与class interface相同
+
+**enum枚举类是一种特殊的类**
+
+**一个java源文件只能有一个被public修饰的类或枚举类或接口, 并且源文件名应该与类名或枚举类名或接口名相同**
+
+枚举类和普通类的区别:
+
+1. 枚举类可以实现多个接口, 但是不能继承其他父类
+
+   > 因为枚举类默认继承了Java.lang.Enum类,并非Object类
+
+2. 
 
 # StringBuilder
 
@@ -2308,3 +2337,292 @@ bd2.setScale(4,BigDecimal.ROUND_HALF_UP);
 
 **setScale() 需要输入保留位数和保留模式的参数**
 
+# Date类
+
+> Date中的大部分方法已经被废弃, 因为Date显示的时间为当前系统的所在时区的当地时间, 不支持国际化
+>
+> 可以使用Calender类来代替Date类
+
+```java
+Date d=new Date(System.currentTimeMillis());
+//以1970-1-1到某个时间的时间差(毫秒为单位)创建Date对象
+Date d2=new Date();
+Date d3=new Date();
+//创建一个当前时间的Date对象
+System.out.println(d);
+System.out.println(d2);
+//d和d2的输出相同
+d.equals(d2);
+//true
+d3.equals(d2);
+//true
+```
+
+# Calendar类
+
+需要先创建对象再通过对象调用实例方法
+
+getTime()
+
+> 将Calendar对象转换为Date对象
+
+get()	set()	add()	
+
+> 获取时间 修改时间 在存储的时间基础上加减时间
+
+```java
+Calendar cal = Calendar.getInstance();
+//注意Calendar对象储存的是创建的时间, 创建后不会变化
+Date d1= cal.getTime();
+//转换成Date对象
+cal.get(Calendar.DAY_OF_YEAR);
+//今年的第几天
+cal.get(Calendar.DAY_OF_MONTH);
+//这个月的第几天
+cal.get(Calendar.DAY_OF_WEEK);
+//这周的第几天
+cal.get(Calendar.YEAR);
+//公元第几年
+cal.get(Calendar.MONTH);
+//今年第几个月
+cal.get(Calendar.DATE);
+//和Calendar.DAY_OF_MONTH相同
+cal.get(Calendar.HOUR_OF_DAY);
+//今天的第几个小时
+cal.get(Calendar.MINUTE);
+//当前小时的第几分钟
+cal.get(Calendar.SECOND);
+//当前分钟的第几秒
+cal.set(1997,6,1);
+//将时间修改为1997年6月1日,修改对象本身
+cal.add(Calender.YEAR,60);
+//将时间修改为60年后, 会修改对象本身
+cal.add(Calender.YEAR,-60);
+//将时间修改为60年前, 会修改对象本身
+```
+
+# SimpleDateFormat
+
+用于将字符串和Date对象按照一定格式进行相互转换
+
+实例方法:
+
+parse(String str)	format(Date d)
+
+```java
+public static void main(String[] args) throws ParseException {
+String str="2022-05-16 12:00:12";
+SimpleDateFormat sdf=
+        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//注意月份和分钟分别用大小写的M和m表示
+Date date=sdf.parse(str);
+//将格式的字符串转换成对应时间的Date对象
+System.out.println(date);
+Date date1=new Date();
+sdf.format(date1);
+//将Date对象转换成格式化的字符串
+}
+```
+
+必须加上throws ParseException捕获异常, 否则编译会报错
+
+> 完整格式参考表格
+
+![image-20220516145849340](0疯狂Java学习笔记.assets/image-20220516145849340.png)
+
+# LocalDate
+
+**LocalDate按照系统所在语言的格式来输出时区对应的日期**
+
+**注意LocalDate对象储存的是年月日, 不包含小时 分钟 秒**
+
+```java
+LocalDate ld=LocalDate.now();
+//创建LocalDate对象存储当前时间
+System.out.println(ld);
+//输出2022-05-16格式的年	月	日
+ld.getYear();
+//输出年份
+ld.getMonth().getValue();
+//输出第几个月
+//使用ld.getMonth()会输出月份的英文单词
+ld.getDayOfMonth();
+//输出一个月中的第几天
+ld.getDayOfYear();
+//输出一年中的第几天
+ld.getDayOfWeek();
+//输出一周的第几天
+LocalDate ld2=LocalDate.of(2022,3,15);
+//修改时间
+ld2.isLeapYear();
+//判断是否是闰年
+//输出假
+ld2.isAfter(ld);
+//判断ld2的时间是否在ld之后
+//输出假
+String str=ld.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH时-mm分钟-ss秒"));
+//上行代码会报16错, 因为LocalDate对象中不存储小时 分钟 秒
+String str=ld.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日"));
+//将LocalDate对象转换为格式化字符串
+String str2= "2022年05月16日";
+LocalDate ld3=LocalDate.parse(str2,DateTimeFormatter.ofPattern("yyyy年MM月dd日"));
+//将字符串转换为LocalDate对象
+LocalDate ld4=ld3.plusDays(10);
+//将时间加10天, 返回修改后的时间, 不会修改对象本身
+ld4=ld4.plusDays(-10);
+//减10天, 不修改原对象
+ld4=ld4.plusMonths(5);
+//加5个月,不修改原对象
+ld4=ld4.plusYears(1);
+//加一年, 不修改原对象
+```
+
+# LocalTime
+
+跟LocalDate类似, 但是存储的是时分秒
+
+```java
+LocalTime lt= LocalTime.now();
+lt.getHour();
+lt.getMinute();
+lt.getSecond();
+lt=LocalTime.of(23,12,11);
+//修改时间
+String str=lt.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+//不能使用hh,这里只能使用HH
+//将LocalTime对象转换为字符串
+lt=LocalTime.parse("11点45分30秒",DateTimeFormatter.ofPattern("HH点mm分ss秒"));
+//不能使用hh,这里只能使用HH
+```
+
+# LocalDateTime
+
+存储年月日 时分秒
+
+```java
+LocalDateTime ldt=LocalDateTime.now();
+ldt.getDayOfYear();
+ldt.getDayOfMonth();
+ldt.getHour();
+ldt=LocalDateTime.of(2022,3,
+        4,11,12,13);
+String str=ldt.format(DateTimeFormatter
+        .ofPattern("yyyy-MM-dd hh:mm:ss"));
+//注意HH为24小时制
+//hh为12小时制
+ldt=LocalDateTime.parse(str,DateTimeFormatter
+        .ofPattern("yyyy-MM-dd hh:mm:ss"));
+```
+
+# 异常
+
+错误(error): 对程序来说不可预测, 不可避免
+
+> 例如OOM(out of memory) 内存不足导致程序被关闭
+
+异常(exception)分为编译时异常和运行时异常, 都可以通过修改代码处理
+
+编译时异常:	编译器编译时检查出的问题
+
+运行时异常:	程序运行时在JVM抛出的异常
+
+![image-20220516193158131](0疯狂Java学习笔记.assets/image-20220516193158131.png)
+
+> 异常继承树
+
+**exception可以通过代码来解决, 体现了Java的健壮性**
+
+> 编译时异常的父类是Exception
+>
+> 运行时异常的父类是RuntimeException
+
+编译时异常有:
+
+![image-20220516193429760](0疯狂Java学习笔记.assets/image-20220516193429760.png)
+
+运行时异常有:
+
+![image-20220516193455333](0疯狂Java学习笔记.assets/image-20220516193455333.png)
+
+方法栈中的调用关系
+
+```java
+public class MainEnter {
+    public static void main(String[] args){
+        meth01();
+    }
+    private static void meth01() {
+        meth02();
+    }
+    private static void meth02() {
+        meth03();
+    }
+    private static void meth03() {
+        System.out.println("猜猜我是谁！");
+    }
+}
+```
+
+上述代码中运行的方法栈如图所示
+
+![image-20220516193642011](0疯狂Java学习笔记.assets/image-20220516193642011.png)
+
+> 当一个方法主动抛出异常时, 将导致该方法被弹出方法栈, 并导致方法栈中在该方法上的方法也被弹出
+
+编译时异常的解决方案:
+
+1. 不捕获异常, 直接向外抛出
+
+   > 异常未被内部处理, 并且会异常方法会被弹出方法栈
+
+   ```java
+   public static void main(String[] args) throws ParseException {
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       Date date = sdf.parse("wrong input");
+   }
+   ```
+
+2. 捕获异常, 但不抛出
+
+   > 异常会被内部消化, 方法不会被弹出栈
+   >
+   > 方法会全部执行完
+
+   ```java
+   public static void main(String[] args){
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       try {
+           Date date = sdf.parse("wrong input");
+       } catch (ParseException e) {
+           e.printStackTrace();
+       }
+   }
+   ```
+
+3. 捕获异常并向外抛出
+
+   > 异常被内部消化, 并告知调用的方法
+   >
+   > 导致产生异常的方法被弹出方法栈
+
+   ```java
+   public static void main(String[] args) throws ParseException {
+       //指定抛出异常的类型
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       try {
+           Date date = sdf.parse("wrong input");
+       } catch (ParseException e) {
+           e.printStackTrace();
+           throw e;
+           //将捕获到的异常抛出给外部
+       }
+   }
+   ```
+
+>总结: 1,3会导致方法被弹出栈结构, 剩余代码不会被执行
+>
+>2不会弹出, 完整执行完方法的代码
+>
+>通常编程中使用1,2方案
+>
+>使用原则: 在栈结构允许的最高处捕获并处理异常, 其他层直接将异常外抛
