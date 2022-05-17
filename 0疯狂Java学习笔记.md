@@ -1786,6 +1786,89 @@ class Test15{
 
 上述代码用lambda实现了一个接口的实例化
 
+**Lambda表达式所创建的对象的目标类型(target type)为函数式接口( functional interface)**
+
+函数式接口: 一个接口只能有一个抽象方法, 但是可以包含多个默认方法 类方法 私有方法
+
+> Java8中为函数式接口提供了注解@FunctionalInterface
+>
+> 该注解放在接口声明之前, 用于提示编译器检查该接口必须是函数式接口, 如果不是的话会造成编程报错
+
+Lambda表达式的限制条件:
+
+1. 目标必须是函数式接口类型
+2. 一个Lambda表达式只能实现一个方法, 只能为函数式接口创建对象
+3. Lambda表达式的形参列表必须与该函数
+
+常见使用场景:
+
+1. 将lambda表达式赋值给函数接口类型的变量
+
+2. 将lambda作为函数式接口类型的参数传给一个方法
+
+3. 将lambda表达式进行强制转换为函数接口类型后再使用
+
+   > 如传给Object类型引用变量
+
+Java8在java.util.function包中提供了大量预定义的函数接口
+
+4类典型的接口:
+
+1. XxxFunction
+2. XxxConsumer
+3. XxxPredicate
+4. XxxSupplier
+
+## 方法引用和构造器引用
+
+lambda表达式有更加简洁的写法
+
+| 种类       | 示例           | 对应的表达式                | 说明 |
+| ---------- | -------------- | --------------------------- | ---- |
+| 类方法     | 类名::类方法   | () -> class.staticMethod()  |      |
+| 实例方法   | 对象::实例方法 | () -> 对象.noStaticMethod() |      |
+|            | 类名::实例方法 | () -> 对象.noStaticMethod() |      |
+| 引用构造器 | 类名::new      | () -> new Class()           |      |
+
+```java
+
+interface Hello {
+    void hello(int a, int b);
+
+    static void hello() {
+    }
+}
+
+class Ho {
+    public Ho(int i, int i1) {
+    }
+
+    Ho() {
+    }
+
+    void hello(int a, int b) {
+    }
+
+    static void staticHello(int a, int b) {
+    }
+}
+
+class Test16 {
+    public static void main(String[] args) {
+        Ho ho = new Ho();
+        Hello h2 = (a, b) -> Ho.staticHello(a, b);
+        Hello h6 = Ho::staticHello;
+        //类方法
+        Hello h3 = (a, b) -> ho.hello(a, b);
+        Hello h7 = ho::hello;
+        //实例方法
+        Hello h4 = (a, b) -> new Ho(a, b);
+        Hello h5 = Ho::new;
+        //引用构造器
+    }
+}
+```
+
 # 枚举类
 
 枚举类是指实例固定并且数量有限的类
@@ -1975,4 +2058,253 @@ String a="1";
 String b=a+a+a+a+a+a;
 //上述代码将中途产生4个临时对象, 使用StringBuilder或StringBuffer类可以避免产生临时对象
 ```
+
+# System类
+
+**System代表当前运行的JVM本身, 程序不能创建System对象**
+
+> System提供了类变量和类方法来给外部调用
+
+**Java提供了System类和Runtime类使程序可以与系统交互**
+
+类成员: 
+
+System.in 标准输出
+
+System.out 标准输出
+
+System.error 异常输出
+
+类方法可以访问环境变量和系统属性
+
+> 这里的标准和异常是指系统的信息状态
+
+**Java中如果需要调用C语言来方法操作系统底层硬件设备可以通过以下步骤实现:**
+
+> 1. 声明一个native修饰的方法, 只有方法签名没有方法实现
+> 2. 用Javac编译成class文件
+> 3. 用Javah编译成.h文件
+> 4. 在C语言的源代码中include .h文件并实现native修饰的方法
+> 5. 将C语言的源代码文件编译成动态链接库文件
+> 6. 在Java中用System.loadLibrary()或Runtime.loadLibrary()加载第五步的动态链接库文件, 该native方法就可以被调用了
+
+```java
+Map<String,String> env=System.getenv();
+        //将当前系统中的所有环境变量获取名称
+        //Map是java.util中的一个类
+        for(String name:env.keySet()){
+            System.out.println(name+"--"+env.get(name));
+        }
+        //遍历所有的环境变量的值
+        Properties props =System.getProperties();
+        //Properties也是java.util中的一个类
+        props.store(new FileOutputStream("props.txt"),"System pro");
+        //FileOutPutStream是java.io中的类, 用于将信息存储到文件里
+        //默认路径为项目所在的根目录
+```
+
+上述代码调用System.getenv方法来获取当前系统的环境变量, 并将获取到的数据存储到了文本文件中
+
+System类中常用的方法有:
+
+1. **获取当前的系统环境变量**
+
+getenv() getProperties() getProperty(String name)
+
+2. **获取当前时间**
+
+currentTimeMills() nanoTime()
+
+> 返回的值为当前时间与1970年1月1日0:00的时间差, 
+>
+> currentTimeMills()以毫秒为单位, nanoTime()以纳秒为单位
+>
+> 并且不同操作系统的底层时间粒度不同, 所以导致返回值的精确会有差异
+>
+> 大部分操作系统以几十毫秒为时间测量单位, 所以很少用到nanoTime()
+
+3. System.exit(0)
+
+   > 关闭程序所在的JVM, 会导致JVM和上面运行的所有程序直接结束运行
+
+4. System.gc()
+
+   > 主动调用垃圾回收
+
+5. setIn() setOut() setErr()
+
+   >改变系统的标准输入 标准输出 标准错误输出流
+
+6. arraycopy()
+
+   > 复制的两个数组都必须已经初始化, 如果index超过数组长度将发生数组索引越界错误
+
+```java
+		System.out.println(System.currentTimeMillis());
+        //输出当前系统时间与1970年1月1日0:00的时间差, 以毫秒为单位
+        System.gc();
+        //主动调用垃圾回收
+        int[] nums=new int[]{1,2,3,4,5,6};
+        int[] nums2=new int[6];
+        System.arraycopy(nums,2,nums2,2,2);
+        System.out.println(Arrays.toString(nums2));
+        //必须是对两个已经初始化的数组进行操作
+		System.exit(0);
+        //导致整个JVM停止运行
+```
+
+# Runtime类
+
+每个Java程序都有一个对应的Runtime实例
+
+Runtime提供了实例方法来操作当前程序的运行时环境
+
+> System类的操作会影响到整个JVM上面的程序
+
+常用的方法:
+
+getRuntime() 获取当前程序对应的Runtime对象
+
+gc()
+
+> 与system类中的方法功能类似
+
+runFinalization()
+
+> 与system类中的方法功能类似
+
+freeMemory()
+
+获取空闲内存量
+
+totalMemory()
+
+获取总的内存量
+
+exec("notepad.exe")
+
+> 运行操作系统中指定名称的程序
+>
+> 在Java9中提供了ProcessHandle接口和ProcessHandle.Info实现类来获取exec运行的进程信息
+
+# Math
+
+Math是Java中的数学运算工具类, 提供了大量数学运算的方法
+
+常见方法:
+
+random()
+
+> 产生一个0.0到1.0范围的浮点数
+
+abs(int i)	pow(int a,int b)	max(int a,int b)	min(int a,int b)	round(double d) 
+
+```java
+		System.out.println(Math.abs(-1));
+        //绝对值
+        System.out.println(Math.pow(3.0, 2.0));
+        //求幂
+        System.out.println(Math.max(1, 2));
+        //返回最大值
+        System.out.println(Math.min(1, 2));
+        //最小值
+        System.out.println(Math.round(15.5));
+        //将double小数四舍五入返回一个int数值
+```
+
+
+
+# Random类
+
+Random中提供了大量的实例方法用于产生随机数值
+
+使用Random中的实例方法一般要先创建Random类的实例
+
+Random类有两个构造器, 无参构造器用默认的种子(当前系统时间) 有参构造器需要传入一个long类型整数作为种子
+
+```java
+Random random=new Random();
+//调用无参构造器创建对象
+Random random2=new Random(100);
+//调用有参构造器创建对象, 如果传入的seed相同, 则创建的随机数可以追溯
+random.nextInt(100);
+//产生一个0-~100的随机数
+```
+
+Java7中提供了Random的增强类 ThreadLocalRandom
+
+> 两个类的功能类似, 但是ThreadLocalRandom提供了对多线程 高并发的支持 有更好的线程安全
+
+# UUID类
+
+UUID: Universally Unique Indentifier (通用唯一标识码)
+
+**UUID用于生成36位的随机值, UUID值的重复概率非常低, 因此可以视为具有唯一性**
+
+可以用于高并发的系统中, 作为数据的唯一索引
+
+> UUID是根据当前系统时间, 网卡MAC地址再加上随机数(盐) 作为种子来产生UUID值, 可以视为具有很高的随机性
+
+# BigDecimal
+
+在Java中进行浮点数(float double)运算时会发生精度丢失,计算的结果不准确
+
+> 原因在于浮点数是将十进制小数转换为二进制存储, 转换过程中会发生数据丢失(精度丢失)
+
+**数据丢失的本质是由于部分十进制小数没有对应的二进制浮点数, 只能存储成无限接近的近似值(类似于分数中无限循环小数的概念)**
+
+为了在十进制小数的存储和使用时避免精度丢失, Java提供了BigDecimal来进行十进制小数的存储和运算
+
+> 在BigDecimal中, 十进制浮点数并非直接转换成二进制浮点数进行存储, 所以可以避免产生数据丢失
+
+BigDeciaml提供了大量构造器来将浮点数存储为对象
+
+BigDecimal(double val)
+
+> 不推荐使用该构造器, 推荐使用BigDecimal.valueOf(double val)类方法来创建对象
+
+BigDecimal(type val)
+
+> 将8种基本数据类型(除了Boolean) 转换成对应的BigDeciaml对象 
+
+**推荐使用BigDeciaml(String str)构造器来将小数对应的字符串转换**
+
+常用方法(都是实例方法, 必须通过对象调用): 加减乘除 幂
+
+add()	subtract()	mutiply()	divide()	pow()
+
+```java
+BigDecimal bd=new BigDecimal("10");
+BigDecimal bd2=BigDecimal.valueOf(2.2222);
+bd.add(bd2);
+//将BigDecimal对象与另一个对象相加, 不会修改原对象, 直接返回结果对象
+bd.subtract(bd2);
+//将两个对象相减并返回结果
+bd.multiply(bd2);
+//将两个对象相乘并返回结果
+bd.divide(bd2);
+//相除并返回结果
+bd.divide(bd2,2,BigDecimalROUND_DOWN)
+//相除, 返回只保留两位小数的结果
+bd.pow(2);
+//计算幂, 注意必须传入参数必须为int整数
+```
+
+**收尾模式**
+
+类常量:
+
+ROUND_DOWN	保留小数位,后面都舍弃
+
+ROUND_UP	判断保留小数位的下一位不等于0则进一
+
+ROUND_HALF_UP	四舍五入
+
+```java
+BigDecimal bd2=BigDecimal.valueOf(2.1234567);
+bd2.setScale(4,BigDecimal.ROUND_HALF_UP);
+//只保留4位小数,四舍五入
+```
+
+**setScale() 需要输入保留位数和保留模式的参数**
 

@@ -378,7 +378,11 @@ currentTimeMills() nanoTime()
 
 5. setIn() setOut() setErr()
 
-   > 改变系统的标准输入 标准输出 标准错误输出流
+   >改变系统的标准输入 标准输出 标准错误输出流
+
+6. arraycopy()
+
+   > 复制的两个数组都必须已经初始化, 如果index超过数组长度将发生数组索引越界错误
 
 ```java
 		System.out.println(System.currentTimeMillis());
@@ -510,29 +514,41 @@ BigDecimal(type val)
 
 **推荐使用BigDeciaml(String str)构造器来将小数对应的字符串转换**
 
-常用方法:
+常用方法(都是实例方法, 必须通过对象调用): 加减乘除 幂
 
-add()
-
-subtract()
-
-mutiply()
-
-divide()
-
-pow()
+add()	subtract()	mutiply()	divide()	pow()
 
 ```java
-		System.out.println(bd.add(bd2));
-        //将BigDecimal对象与另一个对象相加, 不会修改原对象, 直接返回结果对象
-        //调用bd对象的toString方法输出
-        System.out.println(bd.subtract(bd2));
-        //将两个对象相减并返回结果
-        System.out.println(bd.multiply(bd2));
-        //将两个对象相乘并返回结果
-        System.out.println(bd.divide(bd2));
-        //相除并返回结果
-        System.out.println(bd.pow(2));
-        //计算幂, 注意必须传入参数必须为int整数
+BigDecimal bd=new BigDecimal("10");
+BigDecimal bd2=BigDecimal.valueOf(2.2222);
+bd.add(bd2);
+//将BigDecimal对象与另一个对象相加, 不会修改原对象, 直接返回结果对象
+bd.subtract(bd2);
+//将两个对象相减并返回结果
+bd.multiply(bd2);
+//将两个对象相乘并返回结果
+bd.divide(bd2);
+//相除并返回结果
+bd.divide(bd2,2,BigDecimalROUND_DOWN)
+//相除, 返回只保留两位小数的结果
+bd.pow(2);
+//计算幂, 注意必须传入参数必须为int整数
 ```
 
+**收尾模式**
+
+类常量:
+
+ROUND_DOWN	保留小数位,后面都舍弃
+
+ROUND_UP	判断保留小数位的下一位不等于0则进一
+
+ROUND_HALF_UP	四舍五入
+
+```java
+BigDecimal bd2=BigDecimal.valueOf(2.1234567);
+bd2.setScale(4,BigDecimal.ROUND_HALF_UP);
+//只保留4位小数,四舍五入
+```
+
+**setScale() 需要输入保留位数和保留模式的参数**
