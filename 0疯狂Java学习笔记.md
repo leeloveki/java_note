@@ -219,6 +219,24 @@ static修饰的成员代表它属于类本身, 不属于单个实例.
 
 构造器不能声明返回值的类型, 也不能用void关键字来修饰
 
+构造器执行步骤:
+
+1. 申请整个对象的空间
+
+2. 分配属性空间
+
+3. 给属性赋值(自动赋值或者显示赋值)
+
+   > 注意自动赋值是给数值型赋0或0.0, boolean赋false, 引用型赋null
+
+4. 执行构造器中除了赋值的代码
+
+> 实例初始化块在第二步之后,第三步之前执行
+>
+> 任何显式赋值都会导致自动赋值取消
+>
+> 自动赋值只会对对未赋值的属性进行操作
+
 因为一旦用类型关键字来声明后, Java不会将其当作构造方法来执行, 而是作为普通方法来执行
 
 构造方法的语法结构包括: 修饰符 构造方法名 形参列表
@@ -248,8 +266,6 @@ Java里面的引用相当于C语言中的指针
 > 当一个对象没有任何引用变量指向它时, 该对象将被GC回收, 释放它占用的内存空间
 >
 > 将一个对象的所有引用变量都赋值为null时, 将导致没有任何引用变量指向该对象
-
-
 
 **this**关键字总是指向调用该方法的对象
 
@@ -806,6 +822,14 @@ int a=1;
 引用类型的转换只能在具有继承关系的两个类型间进行
 
 >将父类类型实例强制转换成子类类型时, 其运行时类型必须是子类类型, 否则会发生ClassCastException错误
+
+# 强制转换符
+
+(type)
+
+强制转换符可以用于基本数据类型之间(除了boolean)
+
+强制转换符用于对象时, 要求两个类型必须为继承关系
 
 # instanceof运算符
 
@@ -3055,3 +3079,201 @@ LinkedList和ArrayList的区别
 | 新增, 删除元素的效率低 | 新增, 删除元素的效率高 |
 | 查询元素的效率高       | 查询元素的效率低       |
 
+# Set
+
+Set的特点:
+
+1. Set的实现类可以有序也可以无序
+
+2. Set的元素值不允许有重复(相同)的
+
+3. Set没有下标, 不能通过下标去访问元素
+
+   > 通过下标访问元素是List集合的重要特征
+
+# HashSet
+
+HashSet是Set的实现类, 底层使用HashMap的Key键作为元素值
+
+HashSet特点:
+
+1. 元素是无序的
+2. 不允许有重复元素
+3. 没有下标
+
+```java
+List<String> stringList=new ArrayList<>();
+Set<String> stringSet1=new HashSet<>();
+Collections.addAll(stringList,"zs", "ls", "ww", "tq", "ls", "zl", "ls");
+Collections.addAll(stringSet1,"zs", "ls", "ww", "tq", "ls", "zl", "ls");
+Set<String> stringSet2=new HashSet<>(stringList);
+System.out.println(stringList);
+System.out.println(stringSet1);
+System.out.println(stringSet2);
+//stringSet1和stringSet2的元素内容和顺序是完全相同的
+//说明HashSet虽然是无序存储的, 但是如果两个Set的元素内容相同的,则它们的元素存储也是按相同的顺序
+```
+
+HashSet实例方法:
+
+| 方法名   | 功能                                         |
+| -------- | -------------------------------------------- |
+| add      | 添加元素(无序)                               |
+| size     | 显示元素个数                                 |
+| contains | 是否包含某元素值                             |
+| remove   | 删除某个元素值                               |
+| forEach  | 迭代方法, 需要实现一个函数接口的元素展示方法 |
+
+```java
+Set<String> stringSet1=new HashSet<>();
+Collections.addAll(stringSet1,"zs", "ls", "ww", "tq", "ls", "zl", "ls");
+stringSet1.add("123");
+stringSet1.size();
+stringSet1.contains("123");
+stringSet1.remove("123");
+//通过匿名内部类实现了Consumer函数接口的accept方法
+stringSet1.forEach(new Consumer<String>() {
+    @Override
+    public void accept(String s) {
+        System.out.println(s);
+    }
+});
+//通过lambda表达式实现
+stringSet1.forEach((str)->{
+    System.out.println(str);
+});
+//for循环遍历set
+for (String s : stringSet1) {
+    System.out.println(s);
+}
+//通过迭代器实现遍历
+Iterator it=stringSet1.iterator();
+while(it.hasNext()){
+    System.out.println(it.next());
+}
+```
+
+> 可以用ArrayList将HashSet中的元素存储为有序的模式
+
+```java
+HashSet<String> stringHashSet=new HashSet<>();
+Collections.addAll(stringHashSet,"abc","bca","acd","bde");
+System.out.println(stringHashSet);
+ArrayList<String> stringArrayList=new ArrayList<>(stringHashSet);
+System.out.println(stringArrayList);
+Collections.sort(stringArrayList);
+System.out.println(stringArrayList);
+```
+
+**HashSet底层使用HashMap的key来去重元素**
+
+![image-20220519114853154](0疯狂Java学习笔记.assets/image-20220519114853154.png)
+
+HashSet添加元素的步骤
+
+1. 先使用hashcode()将要添加的元素与集合中的其他元素一一对比, 如果不相等则进入第二步
+
+2. 使用equals()将要添加的元素与集合中的其他元素一一对比, 如果还是不相等则加入集合中
+
+> hashcode() 该方法是Object，底层是C语言编写的，用来获得 对象的地址值（经过一系列的算法）
+>
+> equals() 该方法是Object，默认比较的地址值
+
+> hashcod()获取到的hash值对于同一对象一定相等,
+>
+> 对于不同的对象可能会不相等
+
+> (正确性待确认)	HashSet中的元素，一定要重写hashcode() 以及equals()
+
+# 树
+
+树是一种分层结构, 不是线性结构
+
+> 常见线性数据结构: 数组(Arrays) 链表(Linked List) 栈(Stack) 队列(Queue)
+
+根节点(root): 没有父节点的节点(node)(每个树结构只能有一个根节点)(处于二叉树的最顶端)
+
+叶子节点(leave): 没有子节点的节点(处于二叉树的最末端)
+
+```md
+      tree
+      ----
+       j    <-- root
+     /   \
+    f      k  
+  /   \      \
+ a     h      z    <-- leaves
+```
+
+树结构的特点:
+
+1. 可以存储层次结构信息
+
+2. 访问/搜索元素的速度较快(比链表快, 比数组慢)
+
+3. 插入/删除速度较快(比数组快,无序链表慢)
+
+4. 节点数量可变(无上限)
+
+   > 因为节点使用指针链接到不同节点
+
+树的常见应用场景:
+
+1. 操作层次结构的数据
+2. 树遍历可以用于信息的搜索
+3. 路由算法
+4. 多阶段决策
+
+指向根节点的指针代表整个树, 根节点的值为空时代表整个树为空 
+
+# 二叉树
+
+二叉树是一种树结构, 要求一个节点最多只能有两个子节点(child)也被称为左子节点(left child和右子节点(right child)
+
+拥有同一父节点的两个子节点被称为兄弟(sibling)
+
+二叉树有三种常见的类型
+
+完全二叉树(Full Binary Tree) 每个节点
+
+满二叉树(Perfect Binary Tree)
+
+平衡二叉树(Balanced Binary Tree): 一种特殊的二叉搜索树
+
+二叉树有两种存储方式: 顺序存储, 链式存储
+
+# 二叉搜索树
+
+二叉树(Binary Tree)属于一种递归结构, 并且每个节点最多有两个子节点
+
+二叉搜索树(Binary Search Tree)属于一种特殊的二叉树, 要求每个节点都大于或等于左子节点值, 小于等于右子节点
+
+左子节点<=当前节点<=右子节点
+
+> 下图是二叉搜索树示例
+
+![image-20220519100114435](0疯狂Java学习笔记.assets/image-20220519100114435.png)
+
+# 队列
+
+队列是一种特殊的线性(有序)列表(list)
+
+采用先进先出(FIFO)的顺序来处理元素
+
+先进先出: 只能在list末尾插入元素, 只能在list开头将元素删除
+
+队列在java中是一个接口: java.util.Queue
+
+有两个常用的实现类: LinkedList, PiorityQueue
+
+> 注意两者都不是线程安全的
+
+# 堆
+
+堆是一种完全二叉树, 通过数组来存储数据
+
+> 大多数的树是使用链式结构来存储数据
+
+堆又分为大顶堆和小顶堆
+
+# 栈
