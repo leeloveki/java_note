@@ -363,6 +363,16 @@ bis.read();
 | reset         | 无                 | void    | 将指针重置到上次的记录（mark） |
 | skip          | long n             | long    | 将指针向前移动n个字节、字符    |
 
+## 输出流
+
+OutputStream	  Writer
+
+| 实例方法 | 参数                    | 功能                                          | 返回值 |
+| -------- | ----------------------- | --------------------------------------------- | ------ |
+| write    | int                     | 将传入字节输出到字节流(int可以与字节相互转换) | void   |
+| write    | byte[]                  | 将字节数组输出                                | void   |
+| write    | byte[], int off,int len | 从数组的off位置开始输出len长度的字节          | void   |
+
 # 缓存流
 
 缓存流是一种提供了缓存功能的高级流
@@ -372,11 +382,14 @@ bis.read();
 1. 不会直接处理文件
 2. 提供了缓冲区， 提高了输入/输出效率
 
-常用缓存流
+**高级流创建时必须指定底层的低级流, 体现了装饰器设计模式**
 
-BufferedInputStream BufferedOutputStream
-
-BufferedReader BufferedWriter
+| 缓存流(高级流)       | 低级流       |
+| -------------------- | ------------ |
+| BufferedInputStream  | InputStream  |
+| BufferedOutputStream | OutputStream |
+| BufferedReader       | Reader       |
+| BufferedWriter       | Writer       |
 
 > 缓冲流的使用
 
