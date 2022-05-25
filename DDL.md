@@ -75,7 +75,7 @@ DDL是数据库定义语言, 用于对数据库进行增删查改
 ```sql
 //创建一个test数据库, 设置其字符集为utf8mb4
 //utf8mb4等同于java中的utf-8, 四个字节存储空间
-CREATE DATABASE test CHARACTER SET 'utf8mb4';
+create database test character set 'utf8mb4';
 ```
 
 > utf8在数据库只有3个字节, 尽量使用utf8mb4
@@ -240,6 +240,18 @@ alter table test9 alter ok2 set default 1;
 alter table test9 change `ok` `ok3` int comment "id of test";
 ```
 
+对于外键约束, mysql会默认进行级联检查
+
+> 可以用SQL语句将级联检查报错机制改为自动级联删除, 级联更新机制
+
+```sql
+on delete cascade on update cascade;
+```
+
+> 级联检查机制对于大数据量的表来说效率低, 耗费时间
+>
+> 所以一般不添加外键约束, 使用自定义列作为无约束'外键', 不属于SQL范畴的外键
+
 # 数据库范式(Normalization)
 
 数据库范式有 1NF 2NF 3NF BCNF 4NF 5NF 6NF
@@ -248,7 +260,7 @@ alter table test9 change `ok` `ok3` int comment "id of test";
 
 第一范式: 原子性, 每一列都不能再被拆分
 
-第二范式: 1NF的基础上, 所有列必须与主键有关系(依赖于)
+第二范式: 1NF的基础上, 所有列必须与主键有关系(相关)
 
 > 要求一个表中必须有主键(必须是单列主键, 不能是复合主键), 所有的列都必须与主键有关系
 
@@ -260,3 +272,8 @@ alter table test9 change `ok` `ok3` int comment "id of test";
 
 > 间接关系: 属性A依赖于属性B再依赖于主键
 
+解释:
+
+> 遵循第一范式时要根据系统实际需求来合理设计,  例如地址属性中如果'城市'部分经常被访问, 那么需要将地址中的城市等部分拆分开来存储才算满足数据库第一范式
+
+> 第二范式: 不能将可以存储成多个表的数据保存在同一个表里, 例如商场数据库中, 商品信息和订单信息应该用两个不同的表来存储, 减少数据库冗余才算满足第二范式
