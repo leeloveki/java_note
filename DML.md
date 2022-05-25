@@ -104,7 +104,11 @@ select * from test4 where id%2=0 order by age limit 0,3;
 
 上述SQL语句底层执行顺序和原理
 
-1.读取整个表 2.where语句 3.select语句 4. order语句 5.limit语句
+**总体上可以视为从左向右执行**
+
+> 注意select筛选字段语句是紧跟在where之后执行即可
+
+1.读取整个表 2.where语句 3.select语句(筛选段) 4. order语句 5.limit语句
 
 1. 读取test4表, 完整复制到内存中
 2. 执行where语句, 在上一步的内存表中筛选数据到新的内存表
@@ -186,6 +190,9 @@ select * from test4 order by age desc,id desc;
 | 匹配语句(不能单独使用)                |                                                |
 | where                                 | 筛选条件                                       |
 | where ... like ...(通配符%_)          | 筛选条件                                       |
+| 分组语句(不能单独使用)                |                                                |
+| group by ...                          |                                                |
+| group by ... having ...               |                                                |
 
 **sql中的字符串值必须用''单引号括起来**
 
@@ -253,13 +260,42 @@ select count(age) from test;
 
 > SQL不允许有整行都是null的数据
 
+# 分组查询
+
+分组查询的语句为group by
+
+```sql
+#按照性别分组再统计每个性别的人数
+select gender,count(*) from student_info group by gender;
+```
+
+
+
+# SQL总结
+
+最简SQL语句:
+
+```sql
+select 字段或(函数加字段) from 表名; 
+```
+
+完整SQL语句
+
+```sql
+select 字段或(函数加字段) from 表名 where 查询条件 group by 字段 having 过滤条件 order by 字段 limit (a,b)
+```
+
+**执行顺序从左向右**
+
+> 除了select字段语句是在where后执行, 但是实际上不影响最终结果
+
+
+
 
 
 
 
 > mysql5.7以上同时使用order by和limit语句时, 如果order by的列存在重复值, 会造成多页面数据重复
-
-> 课堂练习
 
 ```sql
 create table student_info(
@@ -284,9 +320,6 @@ create database szdx character set 'utf8mb4'
 insert into class_info(id,class_name,class_leader) values(1,'1班','大白'),(2,'2班','大白2'),(3,'3班','大白3');
 insert into student_info(id,stu_name,age,fk_class_id,gender) values(1,"小白",13,1,'男'),(2,"小白2",14,2,'男'),(3,"小白3",15,3,'男'),(4,"小白4",16,1,'男');
 delete from student_info where id=3 and gender='男';
-
-
-
 
 update student_info set gender='男';
 update student_info set gender='女',age=18 where id%2=0;
