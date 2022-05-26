@@ -1,3 +1,22 @@
+# 数据库对象
+
+| 关键字     | 名称     | 描述                                                 |
+| ---------- | -------- | ---------------------------------------------------- |
+| table      | 表       | 存储数据的逻辑单元                                   |
+|            | 数据字典 | 系统表, 存储数据库的信息                             |
+| constraint | 约束     | 进行数据校验, 确保符合限制                           |
+| view       | 视图     | 表中数据的逻辑展示, 本身不存储数据                   |
+| index      | 索引     | 提高数据库的查询性能                                 |
+| function   | 函数     | 对数据库中的数据进行计算, 具有一个返回值             |
+| procedure  | 存储过程 | 进行完整的业务处理, 没有返回值, 但是可以有传出参数   |
+| tigger     | 触发器   | 相当于事件监听器, 在数据库发生事件时触发执行逻辑处理 |
+
+> 数据的列被称为字段, 行称为记录
+
+数据库对象都可以通过create语句+关键字来创建
+
+drop语句和alter语句也是可以操作多种数据库对象
+
 # 约束
 
 mysql支持4种约束
@@ -262,6 +281,8 @@ select count(age) from test;
 
 # 分组查询
 
+**注意group by和having语句都必须与聚合函数搭配使用**
+
 分组查询的语句为group by
 
 ```sql
@@ -269,7 +290,22 @@ select count(age) from test;
 select gender,count(*) from student_info group by gender;
 ```
 
+mysql5.7前, select只能跟字段或聚合函数
 
+mysql5.7后, select还可以跟group_concat()函数
+
+> group_concat()函数的对象是字段
+
+```sql
+
+```
+
+having语句用于对聚合函数的结果进行筛选
+
+```sql
+#统计各班级的人数, 并筛选出人数大于3的班级
+select class_name,count(*) from test group by class_name having count(*)>3;
+```
 
 # SQL总结
 
