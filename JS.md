@@ -38,6 +38,19 @@ let b;
 let b;
 ```
 
+并且var是支持变量提升, 而let不支持
+
+```js
+// var 的情况
+console.log(foo); // 输出undefined
+var foo = 2;
+// let 的情况
+console.log(bar); // 报错ReferenceError:Cannot access 'bar' before initialization
+let bar = 2;
+```
+
+
+
 **流程控制**
 
 **js中的循环 选择语句与java完全相同**
@@ -488,5 +501,30 @@ else return false;
 var pattern = "(^.*$)";
 //返回true或false
 Pattern.compile(pattern).matcher(str).matches();
+```
+
+# Axios
+
+通过axios库提供的方法可以实现依靠json格式进行前端通信
+
+```html
+<!--导入axios库-->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+```
+
+# Json
+
+json是一种数据格式,其主体由对象: {"属性名" : "属性值"}组成, 也被称为键值对
+
+属性值的类型有数值 字符串 数组[] 嵌套子对象
+
+```js
+myObj = {
+    "name":"网站",
+    "num":3,
+    "sites":[ "Google", "Runoob", "Taobao" ]
+};
+//可以通过js的delete方法删除数组中的元素, 但是delete并非完全删除, 仅仅将元素值删除, 其内存空间仍保留着(undefined状态)
+delete myObj.sites[1];
 ```
 
