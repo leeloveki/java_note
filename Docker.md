@@ -77,7 +77,9 @@ docker镜像的底层是自定义的rootfs文件, 被称为base image, 同时镜
 
 **镜像的文件系统对于容器来说是只读的**
 
-dockerfile是自定义docker镜像的构建命令, 可以根据基础镜像来构建新的自定义镜像
+**dockerfile**用于根据配置的参数创建自定义的镜像
+
+dockerfile可以分为4部分: 基础镜像 维护者信息 镜像创建时的操作指令 容器启动时的操作指令 
 
 dockerfile内容:
 
@@ -91,4 +93,22 @@ dockerfile内容:
 | COPY source_path dest_path | 跟add类似, 但没有自动解压功能                                |
 | WORKDIR path_dir           | 指定dockerfile运行命令的工作目录                             |
 | CMD command                | 设置容器运行时会自动执行的bash命令                           |
+
+**docker-compose**
+
+docker-compose用于根据配置的参数创建容器
+
+> docker-compose.yaml
+
+````yaml
+version: '3.9'
+services:
+  my-nginx-service:
+    container_name: my-website
+    image: my-nginx-image:latest
+    cpus: 1.5
+    mem_limit: 2048m
+    ports:
+      - "8080:80"
+````
 
